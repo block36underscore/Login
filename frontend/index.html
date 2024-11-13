@@ -133,7 +133,7 @@
         <br /><br />
         <span class="account-dashboard">
           <span class="account-actions">
-            <button onclick="location.href = '/lab/login/?logout';" class="">Switch account</button>
+            <button onclick="location.href = '/index.html/?logout';" class="">Switch account</button>
             <button id="delete-account" class="danger">Delete account</button>
           </span>
       `;
@@ -205,7 +205,7 @@
         } else {
           localStorage.removeItem("labLoginUsername");
           localStorage.removeItem("labLoginPassword");
-          location.href = "/lab/login/?delete";
+          location.href = "index.html?delete";
         }
       });
       const statusInput = document.querySelector("#status");
@@ -771,10 +771,10 @@
   const urlQuery = new URLSearchParams(window.location.search);
   if (urlQuery.has("logout")) {
     // remove the query from the url
-    window.history.replaceState({}, "", "/lab/login/");
+    window.history.replaceState({}, "", "/index.html/");
   } else if (urlQuery.has("delete")) {
     // remove the query from the url
-    window.history.replaceState({}, "", "/lab/login/");
+    window.history.replaceState({}, "", "/index.html/");
     passwordInput.value = "";
     usernameInput.value = "";
   } else if (
@@ -848,7 +848,7 @@
   addEventListener("pointerdown", (event) => {
     // clear anchor from url, eg: #post-TodePond
     // but don't navigate or anything.
-    window.history.replaceState({}, "", "/lab/login/");
+    window.history.replaceState({}, "", "/index.html/");
 
     document.body.classList.add("untarget");
   });

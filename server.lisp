@@ -19,14 +19,9 @@
           nil 
           (,(file-get-contents "frontend/index.html"))))
 
-      ((alexandria:starts-with-subseq "/lab/login" path-info)
-        `(200 
-          nil 
-          (,(file-get-contents "frontend/index.html"))))
-
       ((alexandria:starts-with-subseq "/logiverse.js" path-info)
         `(200 
-          nil 
+          (:content-type "text/javascript") 
           (,(file-get-contents "frontend/logiverse.js"))))
 
       ((alexandria:starts-with-subseq "/update" path-info) 
@@ -35,7 +30,7 @@
 
       ((alexandria:starts-with-subseq "/getUsers" path-info) 
        `(200
-         null
+         (:content-type "application/json")
          ("[[\"This is a successful test\", \"me! :3\", \"2024-11-11 23:58:45\", null, 0]]")))
 
       (T
