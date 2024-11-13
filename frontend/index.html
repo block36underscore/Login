@@ -62,6 +62,8 @@
 
 <script type="module" src="logiverse.js"></script>
 <script type="module">
+  import { config } from './logiverse.js';
+
   const refreshSign = document.querySelector("#refresh-sign");
   const loadingFeed = document.querySelector("#loading-feed");
   const usernameInput = document.querySelector("#username");
@@ -133,7 +135,7 @@
         <br /><br />
         <span class="account-dashboard">
           <span class="account-actions">
-            <button onclick="location.href = '/index.html/?logout';" class="">Switch account</button>
+            <button onclick="location.href = './?logout';" class="">Switch account</button>
             <button id="delete-account" class="danger">Delete account</button>
           </span>
       `;
@@ -771,10 +773,10 @@
   const urlQuery = new URLSearchParams(window.location.search);
   if (urlQuery.has("logout")) {
     // remove the query from the url
-    window.history.replaceState({}, "", "/index.html/");
+    window.history.replaceState({}, "", "./");
   } else if (urlQuery.has("delete")) {
     // remove the query from the url
-    window.history.replaceState({}, "", "/index.html/");
+    window.history.replaceState({}, "", "./");
     passwordInput.value = "";
     usernameInput.value = "";
   } else if (
@@ -848,7 +850,7 @@
   addEventListener("pointerdown", (event) => {
     // clear anchor from url, eg: #post-TodePond
     // but don't navigate or anything.
-    window.history.replaceState({}, "", "/index.html/");
+    window.history.replaceState({}, "", "./");
 
     document.body.classList.add("untarget");
   });

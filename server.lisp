@@ -2,7 +2,7 @@
 
 (load "~/quicklisp/setup.lisp")
 
-(ql:quickload '(clack alexandria))
+(ql:quickload '(clack alexandria com.inuoe.jzon))
 
 (defparameter *clack-server*
   (clack:clackup (lambda (env) (funcall 'handler env))
@@ -10,11 +10,11 @@
 
 (defun handler (env)
   (destructuring-bind (&key request-method path-info request-uri
-                            query-string headers &allow-other-keys) env
+                            query-string headers raw-body &allow-other-keys) env
     (princ (format nil "~S request for ~S: ~S" request-method request-uri query-string))
     (terpri)
     (cond
-      ((alexandria:starts-with-subseq "/index.html" path-info)
+      ((string= "/" path-info)
         `(200 
           nil 
           (,(file-get-contents "frontend/index.html"))))
@@ -25,8 +25,11 @@
           (,(file-get-contents "frontend/logiverse.js"))))
 
       ((alexandria:starts-with-subseq "/update" path-info) 
-       (princ "Update")
-       (terpri))
+        (princ (format nil "Update: ~A" (alexandria:hash-table-alist (com.inuoe.jzon:parse raw-body))))
+        (terpri)
+        `(200
+          (:content-type "text/plain")
+          ("")))
 
       ((alexandria:starts-with-subseq "/getUsers" path-info) 
        `(200
