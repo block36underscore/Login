@@ -107,10 +107,14 @@
     (unless (and username password) 
       (return-from handle-login (error-response "Missing username or password")))
 
-    (if (contains-banned-chars username) (return-from handle-login (error-response "Invalid username")))
-    (if (> (length username) 50) (return-from handle-login (error-response "Username is longer than 50 characters")))
-    (if (contains-banned-chars password) (return-from handle-login (error-response "Invalid password")))
-    (if (> (length password) 50) (return-from handle-login (error-response "Password is longer than 50 characters")))
+    (if (contains-banned-chars username) 
+      (return-from handle-login (error-response "Invalid username")))
+    (if (> (length username) 50) 
+      (return-from handle-login (error-response "Username is longer than 50 characters")))
+    (if (contains-banned-chars password) 
+      (return-from handle-login (error-response "Invalid password")))
+    (if (> (length password) 50) 
+      (return-from handle-login (error-response "Password is longer than 50 characters")))
     (princ (format nil "username: ~A password: ~A" username password))
     (terpri)))
 
