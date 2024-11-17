@@ -5,6 +5,7 @@
 (ql:quickload '(clack alexandria com.inuoe.jzon mito))
 
 (defconstant table-name "users")
+(defconstant message-wrong-password "Incorrect username or password")
 
 (mito:connect-toplevel :sqlite3
                        :database-name "user-data")
@@ -91,6 +92,14 @@
           (:content-type "text/plain")
           ("")))
 
+      ((alexandria:starts-with-subseq "/update" path-info) 
+        (let ((result (handle-update (com.inuoe.jzon:parse raw-body))))
+          (if result
+            (return-from handler result)))
+        `(200
+          (:content-type "text/plain")
+          ("")))
+
       ((alexandria:starts-with-subseq "/getUsers" path-info)
        (princ (serialize-statuses))
        (terpri)
@@ -132,6 +141,27 @@
     ;(find #\ZERO_WIDTH_SPACE str)
     (find #\Space str)))
 
+(defun handle-update (req-body)
+  (unless (get-user (gethash "username" req-body))
+    (return-from handle-update 
+      (error-response (format nil "The user \"~A\" does not exist" 
+        (gethash "username" req-body)))))
+
+  (let ((status    (gethash "status"   req-body))
+        (gif       (gethash "gif"      req-body))
+        (user-data (get-user (gethash "username" req-body) 
+                             (gethash "password" req-body))))
+
+    (if user-data
+      (progn 
+        (setf (slot-value user-data 'status) status)
+        (if (string= gif "NULL")
+          (setf gif "none"))
+        (setf (slot-value user-data 'gif)    gif)
+        (update-user user-data)
+        (return-from handle-update (success-response)))
+      (return-from handle-update (error-response message-wrong-password)))))
+
 (defun handle-login (req-body)
   (let 
     ((username (gethash "username" req-body))
@@ -154,7 +184,7 @@
     (if (get-user username)
       (if (get-user username password)
         (return-from handle-login (success-response))
-        (return-from handle-login (error-response "Username or password is incorrect")))
+        (return-from handle-login (error-response message-wrong-password)))
       (progn 
         (update-user (new-user username password))
         (return-from handle-login (success-response))))))
