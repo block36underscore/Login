@@ -152,7 +152,9 @@
     (terpri)
 
     (if (get-user username)
-      (return-from handle-login `(200 nil ("{}")))
+      (if (get-user username password)
+        (return-from handle-login (success-response))
+        (return-from handle-login (error-response "Username or password is incorrect")))
       (progn 
         (update-user (new-user username password))
         (return-from handle-login (success-response))))))
