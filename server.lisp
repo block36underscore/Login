@@ -2,7 +2,7 @@
 
 (load "~/quicklisp/setup.lisp")
 
-(ql:quickload '(clack alexandria com.inuoe.jzon mito))
+(ql:quickload '(clack com.inuoe.jzon mito))
 
 (defconstant table-name "users")
 (defconstant message-wrong-password "Incorrect username or password")
@@ -79,12 +79,12 @@
           nil 
           (,(file-get-contents "frontend/index.html"))))
 
-      ((alexandria:starts-with-subseq "/logiverse.js" path-info)
+      ((string= "/logiverse.js" path-info)
         `(200 
           (:content-type "text/javascript") 
           (,(file-get-contents "frontend/logiverse.js"))))
 
-      ((alexandria:starts-with-subseq "/login" path-info) 
+      ((string= "/login" path-info) 
         (let ((result (handle-login (com.inuoe.jzon:parse raw-body))))
           (if result
             (return-from handler result)))
@@ -92,7 +92,7 @@
           (:content-type "text/plain")
           ("")))
 
-      ((alexandria:starts-with-subseq "/update" path-info) 
+      ((string= "/update" path-info) 
         (let ((result (handle-update (com.inuoe.jzon:parse raw-body))))
           (if result
             (return-from handler result)))
@@ -100,7 +100,7 @@
           (:content-type "text/plain")
           ("")))
 
-      ((alexandria:starts-with-subseq "/getUsers" path-info)
+      ((string= "/getUsers" path-info)
        (princ (serialize-statuses))
        (terpri)
        `(200
