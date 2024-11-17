@@ -14,7 +14,7 @@
              :primary-key T)
    (password :col-type (:text))
    (status   :col-type (:text))
-   (gif      :col-type (:text))))
+   (gif      :col-type (:integer))))
 
 (defun new-user (username password &optional provided-status provided-gif)
   (let ((status (if provided-status
@@ -52,6 +52,31 @@
   (clack:clackup (lambda (env) (funcall 'handler env))
     :port 4242))
 
+(defun serialize-status (user-data)
+  (format nil 
+          "[~S,~S,~S,~A,~D]"
+          (slot-value user-data 'status)
+          (slot-value user-data 'username)
+          "2024-11-11 23:58:45"
+          "null"
+          0))
+
+(defun serialize-statuses ()
+  (with-output-to-string (output)
+    (let ((statuses (mito:retrieve-dao 'user))
+          (first T))
+      (terpri)
+      (princ "[" output)
+      (mapcar 
+        (lambda (user-data)
+          (unless first 
+            (progn 
+              (princ "," output)
+              (setf first nil)))
+          (princ (serialize-status user-data) output))
+        statuses)
+      (princ "]" output))))
+
 (defun handler (env)
   (destructuring-bind (&key request-method path-info request-uri
                             query-string headers raw-body &allow-other-keys) env
@@ -76,10 +101,12 @@
           (:content-type "text/plain")
           ("")))
 
-      ((alexandria:starts-with-subseq "/getUsers" path-info) 
+      ((alexandria:starts-with-subseq "/getUsers" path-info)
+       (princ (serialize-statuses))
+       (terpri)
        `(200
          (:content-type "application/json")
-         ("[[\"This is a successful test\", \"me! :3\", \"2024-11-11 23:58:45\", null, 0]]")))
+         (,(serialize-statuses))))
 
       (T
         `(404
