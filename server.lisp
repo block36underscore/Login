@@ -16,17 +16,13 @@
    (status   :col-type (:text))
    (gif      :col-type (:integer))))
 
-(defun new-user (username password &optional provided-status provided-gif)
-  (let ((status (if provided-status
-                    provided-status
-                    "Hello I am new"))
-        (gif    (if provided-gif
-                    provided-gif
-                    "none")))
-    (make-instance 'user :username username 
-                         :password password 
-                         :status   status
-                         :gif      gif)))
+(defun new-user (username password 
+                &key (status "Hello I am new") 
+                     (gif "none"))
+  (make-instance 'user :username username 
+                       :password password 
+                       :status   status
+                       :gif      gif))
 
 (defun get-user (username &optional password)
   (if (not password) 
@@ -42,11 +38,6 @@
       (mito:delete-dao user-data)
       (mito:save-dao user-data))
     (mito:insert-dao user-data)))
-
-(unless (get-user "test")
-  (mito:insert-dao (new-user "test" "12345")))
-
-(update-user (new-user "test" "securepasswordwow"))
 
 (defparameter *clack-server*
   (clack:clackup (lambda (env) (funcall 'handler env))
@@ -70,9 +61,8 @@
       (mapcar 
         (lambda (user-data)
           (unless first 
-            (progn 
-              (princ "," output)
-              (setf first nil)))
+            (princ "," output))
+          (setf first nil)
           (princ (serialize-status user-data) output))
         statuses)
       (princ "]" output))))
@@ -126,6 +116,22 @@
     (:content-type "application/json")
     (,(format nil "{ \"error\": ~S }" message))))
 
+(defun success-response ()
+  `(200
+    (:content-type "application/json")
+    ("{}")))
+
+(defun contains-banned-chars (str)
+  (or 
+    (find #\Return str)
+    (find #\Tab str)
+    (find #\Linefeed str)
+    ;(find #\ZERO_WIDTH_JOINER str)
+    ;(find #\ZERO_WIDTH_SPACE str)
+    ;(find #\ZERO_WIDTH_NON_JOINER str)
+    ;(find #\ZERO_WIDTH_SPACE str)
+    (find #\Space str)))
+
 (defun handle-login (req-body)
   (let 
     ((username (gethash "username" req-body))
@@ -143,17 +149,13 @@
     (if (> (length password) 50) 
       (return-from handle-login (error-response "Password is longer than 50 characters")))
     (princ (format nil "username: ~A password: ~A" username password))
-    (terpri)))
+    (terpri)
 
-(defun contains-banned-chars (str)
-  (or 
-    (find #\Return str)
-    (find #\Tab str)
-    (find #\Linefeed str)
-    ;(find #\ZERO_WIDTH_JOINER str)
-    ;(find #\ZERO_WIDTH_SPACE str)
-    ;(find #\ZERO_WIDTH_NON_JOINER str)
-    ;(find #\ZERO_WIDTH_SPACE str)
-    (find #\Space str)))
+    (if (get-user username)
+      (return-from handle-login `(200 nil ("{}")))
+      (progn 
+        (update-user (new-user username password))
+        (return-from handle-login (success-response))))))
+
 
 (sleep most-positive-fixnum)
