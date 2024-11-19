@@ -1,4 +1,8 @@
-export default {};
+export default {
+  name: "login.block36.gay",
+  admin: "block36_",
+  feed: "http://127.0.0.1:4242/getUsers"
+};
 
 // Login instances copied from svenlaa's loggo instance 
 // https://github.com/Svenlaa/svenlaa.com/blob/main/playground/loggo/logiverse.js
@@ -7,7 +11,7 @@ export default {};
 export const config = {
     version: '0.0.1',
     instance_name: 'login.block36.gay',
-    instance_admin: 'block36',
+    instance_admin: 'block36_',
     endpoints: {
       update: 'http://127.0.0.1:4242/update',
         login: 'http://127.0.0.1:4242/login',
